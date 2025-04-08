@@ -51,7 +51,7 @@ export PORT=8080      # Defaults to 8080 if unset
 cd real-time-taskboard/backend
 
 # Initialize Go modules (if not done)
-go mod init github.com/yourusername/real-time-taskboard/backend
+go mod init github.com/asmit27rai/real-time-taskboard/backend
 
 # Download dependencies
 go mod tidy
