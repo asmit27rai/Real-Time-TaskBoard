@@ -3,6 +3,7 @@ import { Toaster, toast } from 'react-hot-toast'
 import { connectSocket, ChangeEvent } from './services/socket'
 import { getTasks, Task } from './services/api'
 import TaskManager from './components/TaskManager'
+import { UserButton } from '@clerk/clerk-react'
 
 export default function App() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -40,6 +41,12 @@ export default function App() {
         </header>
         <TaskManager tasks={tasks} setTasks={setTasks} />
       </div>
+      <footer className="fixed bottom-0 left-0 right-0 bg-white shadow-md py-4">
+        <div className="max-w-4xl mx-auto flex justify-between items-center px-6">
+          <p className="text-gray-600">© 2023 TaskSpark. All rights reserved.</p>
+          <UserButton/>
+        </div>
+      </footer>
     </>
   )
 }
