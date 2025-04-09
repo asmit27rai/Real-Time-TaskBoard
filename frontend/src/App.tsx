@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import TaskManager from "./components/TaskManager";
 
 // type CustomData = {
 //   id: string,
@@ -33,7 +34,7 @@ function App() {
     <>
       <div className="w-full h-full text-black flex flex-col">
         <div>
-          hi
+          <TaskManager/>
         </div>
       </div>
     </>
