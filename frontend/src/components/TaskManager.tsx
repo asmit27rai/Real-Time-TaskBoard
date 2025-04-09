@@ -1,208 +1,195 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { Task, createTask, updateTask, deleteTask } from '../services/api'
+import { Edit2, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
-type Tasks = {
-    _id : number;
-    title : string;
-    description : string;
-    status : string;
+type Props = {
+  tasks: Task[]
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
-const TaskManager = () => {
-    const [tasks, setTasks] = useState<Tasks[]>([]);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [status, setStatus] = useState("Pending");
-    const [search, setSearch] = useState("");
-    // const [filterPriority, setFilterPriority] = useState("All");
-    const [filterStatus, setFilterStatus] = useState("All");
-    const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
+export default function TaskManager({ tasks, setTasks }: Props) {
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [completed, setCompleted] = useState(false)
+  const [search, setSearch] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
-    const token = localStorage.getItem("token");
+  const clearForm = () => {
+    setTitle('')
+    setDescription('')
+    setCompleted(false)
+    setEditingId(null)
+  }
 
-    const fetchTasks = async () => {
-        try {
-            const res = await axios.get("http://localhost:3000/tasks");
-            setTasks(res.data);
-        } catch (error) {
-            console.error("Error fetching tasks", error);
-        }
-    };
+  const handleAdd = async () => {
+    if (!title.trim()) return toast.error('Title is required')
+    try {
+      const { data } = await createTask({ title, description, completed })
+      setTasks(prev => [...prev, data])
+      clearForm()
+      toast.success('Task added')
+    } catch {
+      toast.error('Failed to add task')
+    }
+  }
 
-    useEffect(()=>{
-        fetchTasks();
-    }, )
+  const handleUpdate = async () => {
+    if (!editingId) return
+    try {
+      const { data } = await updateTask(editingId, { title, description, completed })
+      setTasks(prev => prev.map(t => (t.id === editingId ? data : t)))
+      clearForm()
+      toast.success('Task updated')
+    } catch {
+      toast.error('Failed to update')
+    }
+  }
 
-    const addTask = async () => {
-        if (!title.trim())
-            return alert("Enter a valid title and deadline!");
-        const newTask = { title, description, status };
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteTask(id)
+      setTasks(prev => prev.filter(t => t.id !== id))
+      toast('Task deleted')
+    } catch {
+      toast.error('Failed to delete')
+    }
+  }
 
-        try {
-            const res = await axios.post(
-                "http://localhost:8080/tasks",
-                newTask
-            );
-            setTasks([...tasks, res.data]);
-            clearForm();
-        } catch (error) {
-            console.error("Error adding task", error);
-        }
-    };
+  const startEdit = (t: Task) => {
+    setEditingId(t.id)
+    setTitle(t.title)
+    setDescription(t.description)
+    setCompleted(t.completed)
+  }
 
-    const updateTask = async () => {
-        if (!title.trim()) {
-            return toast("Title and deadline are required!");
-        }
+  const filtered = tasks
+    .filter(t =>
+      t.title.toLowerCase().includes(search.toLowerCase()) ||
+      t.description.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => Number(a.completed) - Number(b.completed))
 
-        try {
-            const res = await axios.put(
-                `http://localhost:8080/tasks/${editingTaskId}`,
-                { title, description, status },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Search & Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 p-3 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={completed}
+            onChange={e => setCompleted(e.target.checked)}
+            className="w-5 h-5"
+          />
+          <span className="text-gray-700">Show Completed</span>
+        </label>
+      </div>
 
-            setTasks(tasks.map(task =>
-                task._id === editingTaskId ? res.data : task
-            ));
-            cancelEdit();
-        } catch (error : any) {
-            console.error("Update failed:", error.response?.data || error.message);
-            alert("Failed to update task: " + (error.response?.data?.message || error.message));
-        }
-    };
-
-    const deleteTask = async (id : number) => {
-        try {
-            await axios.delete(`http://localhost:8080/tasks/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setTasks(tasks.filter((task) => task._id !== id));
-        } catch (error) {
-            console.error("Error deleting task", error);
-        }
-    };
-
-    const startEdit = (task : Tasks) => {
-        setEditingTaskId(task._id);
-        setTitle(task.title);
-        setDescription(task.description);
-        setStatus(task.status);
-    };
-
-    const cancelEdit = () => {
-        setEditingTaskId(null);
-        clearForm();
-    };
-
-    const clearForm = () => {
-        setTitle("");
-        setDescription("");
-        setStatus("Pending");
-    };
-
-    const filteredTasks = tasks.filter(
-        (task) =>
-            (filterStatus === "All" || task.status === filterStatus) &&
-            task.title.toLowerCase().includes(search.toLowerCase())
-    );
-
-    return (
-        <div className="bg-gray-100 min-h-screen flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-4">Task Management System</h1>
-
-            {/* Form */}
-            <div className="flex flex-wrap gap-3 mb-4">
-                <input
-                    className="p-2 border rounded"
-                    type="text"
-                    placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                    className="p-2 border rounded"
-                    type="text"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                <select
-                    className="p-2 border rounded"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
+      {/* Form */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold mb-4">
+          {editingId ? 'Edit Task' : 'New Task'}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input
+            className="p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Title"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+          <input
+            className="p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Description"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <div className="flex items-center space-x-4">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={completed}
+                onChange={e => setCompleted(e.target.checked)}
+                className="w-5 h-5"
+              />
+              <span>Completed</span>
+            </label>
+            {editingId ? (
+              <>
+                <button
+                  onClick={handleUpdate}
+                  className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
                 >
-                    <option>Pending</option>
-                    <option>Completed</option>
-                </select>
-
-                {editingTaskId ? (
-                    <>
-                        <button
-                            className="px-4 py-2 bg-blue-500 text-white rounded"
-                            onClick={updateTask}
-                        >
-                            Update Task
-                        </button>
-                        <button
-                            className="px-4 py-2 bg-gray-500 text-white rounded"
-                            onClick={cancelEdit}
-                        >
-                            Cancel
-                        </button>
-                    </>
-                ) : (
-                    <button
-                        className="px-4 py-2 bg-green-500 text-white rounded"
-                        onClick={addTask}
-                    >
-                        Add Task
-                    </button>
-                )}
-            </div>
-
-            {/* Task Table */}
-            <table className="w-full max-w-4xl bg-white shadow-md rounded border border-gray-200">
-                <thead>
-                    <tr className="bg-gray-800 text-white">
-                        <th className="p-2">Title</th>
-                        <th className="p-2">Description</th>
-                        <th className="p-2">Status</th>
-                        <th className="p-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredTasks.map((task) => (
-                        <tr key={task._id} className="text-center border-b">
-                            <td className="p-2">{task.title}</td>
-                            <td className="p-2">{task.description}</td>
-                            <td className="p-2">{task.status}</td>
-                            <td className="p-2 flex justify-center gap-2">
-                                <button
-                                    className="px-2 py-1 bg-blue-500 text-white rounded"
-                                    onClick={() => startEdit(task)}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    className="px-2 py-1 bg-red-500 text-white rounded"
-                                    onClick={() => deleteTask(task._id)}
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                  Update
+                </button>
+                <button
+                  onClick={clearForm}
+                  className="px-4 py-2 bg-gray-400 text-white rounded shadow hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleAdd}
+                className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700"
+              >
+                Add Task
+              </button>
+            )}
+          </div>
         </div>
-    );
-};
+      </div>
 
-export default TaskManager;
+      {/* Task List */}
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AnimatePresence>
+          {filtered.map(task => (
+            <motion.li
+              key={task.id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white p-4 rounded-lg shadow flex flex-col justify-between"
+            >
+              <div>
+                <h3
+                  className={`text-xl font-bold ${
+                    task.completed ? 'line-through text-gray-500' : ''
+                  }`}
+                >
+                  {task.title}
+                </h3>
+                <p className="mt-2 text-gray-700">{task.description}</p>
+              </div>
+              <div className="mt-4 flex justify-end space-x-2">
+                <button
+                  onClick={() => startEdit(task)}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  aria-label="Edit"
+                >
+                  <Edit2 size={16} />
+                </button>
+                <button
+                  onClick={() => handleDelete(task.id)}
+                  className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  aria-label="Delete"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </ul>
+    </div>
+  )
+}
