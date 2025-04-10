@@ -9,6 +9,7 @@ import (
 
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
+    "github.com/joho/godotenv"
 
     "github.com/asmit27rai/real-time-taskboard/backend/internal/api"
     "github.com/asmit27rai/real-time-taskboard/backend/internal/db"
@@ -16,11 +17,18 @@ import (
 )
 
 func main() {
+
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatal("Error loading .env file")
+    }
+
     // MongoDB URI
     uri := os.Getenv("MONGO_URI")
-    if uri == "" {
-        uri = "mongodb://localhost:27017"
-    }
+    // if uri == "" {
+    //     uri = "mongodb://localhost:27017"
+    // }
+    log.Println("MongoDB URI:", uri)
     client, err := db.Connect(uri)
     if err != nil {
         log.Fatal("MongoDB connect error:", err)
