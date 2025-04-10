@@ -25,7 +25,7 @@ EXPOSE 8080
 
 # Set environment file if needed
 # You can use this if you want to load environment variables manually:
-# COPY .env .env
+COPY . .
 
 # Run the binary
 CMD ["./main"]
