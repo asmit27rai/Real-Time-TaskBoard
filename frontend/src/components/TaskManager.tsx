@@ -9,7 +9,7 @@ type Props = {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
-export default function TaskManager({ tasks, setTasks }: Props) {
+export default function TaskManager({ tasks=[], setTasks }: Props) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [completed, setCompleted] = useState(false)
@@ -64,12 +64,19 @@ export default function TaskManager({ tasks, setTasks }: Props) {
     setCompleted(t.completed)
   }
 
-  const filtered = tasks
+  // const filtered = tasks
+  //   .filter(t =>
+  //     t.title.toLowerCase().includes(search.toLowerCase()) ||
+  //     t.description.toLowerCase().includes(search.toLowerCase())
+  //   )
+  //   .sort((a, b) => Number(a.completed) - Number(b.completed))
+  const filtered = (tasks || [])
     .filter(t =>
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.description.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => Number(a.completed) - Number(b.completed))
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -162,9 +169,8 @@ export default function TaskManager({ tasks, setTasks }: Props) {
             >
               <div>
                 <h3
-                  className={`text-xl font-bold ${
-                    task.completed ? 'line-through text-gray-500' : ''
-                  }`}
+                  className={`text-xl font-bold ${task.completed ? 'line-through text-gray-500' : ''
+                    }`}
                 >
                   {task.title}
                 </h3>
