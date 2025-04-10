@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
 import LandingPage from "./components/LandingPage.tsx";
+import Dashboard from "./components/Dashboard.tsx";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -22,6 +23,7 @@ createRoot(document.getElementById("root")!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </SignedIn>

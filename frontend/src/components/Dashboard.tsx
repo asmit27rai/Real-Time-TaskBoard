@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface Task {
   _id: string;
@@ -12,7 +13,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // WebSocket connection to backend
-    const socket = new WebSocket('ws://localhost:8080'); // Make sure this is the correct WebSocket endpoint
+    const socket = new WebSocket('ws://localhost:8080/ws'); // Make sure this is the correct WebSocket endpoint
 
     // When a message is received
     socket.onmessage = (event) => {
@@ -42,15 +43,26 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <ul>
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <h1 className="text-4xl font-bold text-center text-gray-800">📋 Dashboard</h1>
+
+      <ul className="grid gap-6 sm:grid-cols-2">
         {tasks.map((task) => (
-          <li key={task._id}>
-            <h3>{task.title}</h3>
-            <p>{task.description}</p>
-            <small>Created at: {task.createdAt}</small>
-          </li>
+          <motion.li
+            key={task._id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white shadow-lg rounded-lg p-5 border-l-4 border-blue-500 hover:shadow-xl transition"
+          >
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              {task.title}
+            </h3>
+            <p className="text-gray-600 mb-2">{task.description}</p>
+            <small className="text-gray-400">
+              Created: {new Date(task.createdAt).toLocaleString()}
+            </small>
+          </motion.li>
         ))}
       </ul>
     </div>
