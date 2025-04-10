@@ -3,13 +3,14 @@ import toast from 'react-hot-toast'
 import { Task, createTask, updateTask, deleteTask } from '../services/api'
 import { Edit2, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router'
 
 type Props = {
   tasks: Task[]
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
-export default function TaskManager({ tasks=[], setTasks }: Props) {
+export default function TaskManager({ tasks = [], setTasks }: Props) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [completed, setCompleted] = useState(false)
@@ -98,6 +99,9 @@ export default function TaskManager({ tasks=[], setTasks }: Props) {
           />
           <span className="text-gray-700">Show Completed</span>
         </label>
+        <Link to={'/dashboard'} target="_blank">
+          <button className='px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700'>Database Watcher</button>
+        </Link>
       </div>
 
       {/* Form */}
@@ -129,7 +133,7 @@ export default function TaskManager({ tasks=[], setTasks }: Props) {
               <span>Completed</span>
             </label>
             {editingId ? (
-              <>
+              <div className='flex flex-col gap-2'>
                 <button
                   onClick={handleUpdate}
                   className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
@@ -142,7 +146,7 @@ export default function TaskManager({ tasks=[], setTasks }: Props) {
                 >
                   Cancel
                 </button>
-              </>
+              </div>
             ) : (
               <button
                 onClick={handleAdd}
