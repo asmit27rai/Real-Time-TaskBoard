@@ -10,8 +10,8 @@ import (
     "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo"
 
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/models"
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/ws"
+    "github.com/asmit27rai/TaskSpark/backend/internal/models"
+    "github.com/asmit27rai/TaskSpark/backend/internal/ws"
 )
 
 // TaskHandler holds DB collection and WS hub
