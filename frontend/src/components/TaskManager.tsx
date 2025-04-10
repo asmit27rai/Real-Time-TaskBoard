@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { Task, createTask, updateTask, deleteTask } from '../services/api'
+import { Task, createTask, updateTask, deleteTask, getTasks } from '../services/api'
 import { Edit2, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router'
@@ -16,6 +16,10 @@ export default function TaskManager({ tasks = [], setTasks }: Props) {
   const [completed, setCompleted] = useState(false)
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+
+  useEffect(()=>{
+    getTasks();
+  }, [tasks])
 
   const clearForm = () => {
     setTitle('')
@@ -65,12 +69,6 @@ export default function TaskManager({ tasks = [], setTasks }: Props) {
     setCompleted(t.completed)
   }
 
-  // const filtered = tasks
-  //   .filter(t =>
-  //     t.title.toLowerCase().includes(search.toLowerCase()) ||
-  //     t.description.toLowerCase().includes(search.toLowerCase())
-  //   )
-  //   .sort((a, b) => Number(a.completed) - Number(b.completed))
   const filtered = (tasks || [])
     .filter(t =>
       t.title.toLowerCase().includes(search.toLowerCase()) ||

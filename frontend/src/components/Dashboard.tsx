@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { getTasks } from '../services/api';
 
 interface Task {
   _id: string;
@@ -12,16 +13,13 @@ const Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]); // State to store tasks
 
   useEffect(() => {
-    // WebSocket connection to backend
-    const socket = new WebSocket('ws://localhost:8080/ws'); // Make sure this is the correct WebSocket endpoint
+    const socket = new WebSocket('ws://localhost:8080/ws');
 
-    // When a message is received
     socket.onmessage = (event) => {
       try {
-        const taskData = JSON.parse(event.data); // Parse the incoming task data
-        const task: Task = taskData.task; // Assuming the incoming message has a task object
+        const taskData = JSON.parse(event.data);
+        const task: Task = taskData.task;
 
-        // Update state based on operation type (insert, update, delete)
         if (taskData.type === 'insert') {
           setTasks((prevTasks) => [...prevTasks, task]);
         } else if (taskData.type === 'update') {
@@ -36,7 +34,6 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    // Cleanup WebSocket connection on component unmount
     return () => {
       socket.close();
     };
