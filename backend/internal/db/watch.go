@@ -5,8 +5,8 @@ import (
     "encoding/json"
     "log"
 
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/models"
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/ws"
+    "github.com/asmit27rai/TaskSpark/backend/internal/models"
+    "github.com/asmit27rai/TaskSpark/backend/internal/ws"
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
 )

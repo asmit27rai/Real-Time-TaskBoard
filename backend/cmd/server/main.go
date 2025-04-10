@@ -11,9 +11,9 @@ import (
     "github.com/gin-gonic/gin"
     "github.com/joho/godotenv"
 
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/api"
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/db"
-    "github.com/asmit27rai/real-time-taskboard/backend/internal/ws"
+    "github.com/asmit27rai/TaskSpark/backend/internal/api"
+    "github.com/asmit27rai/TaskSpark/backend/internal/db"
+    "github.com/asmit27rai/TaskSpark/backend/internal/ws"
 )
 
 func main() {
